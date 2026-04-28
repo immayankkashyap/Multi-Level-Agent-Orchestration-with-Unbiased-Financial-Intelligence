@@ -37,6 +37,9 @@ async def main():
         for node_name, update in event.items():
             print(f"\n--- Node: {node_name} ---")
 
+            if not update:
+                continue
+
             steps = update.get("steps", [])
             for s in steps:
                 status_icon = "✓" if s["status"] == "done" else "⟳"

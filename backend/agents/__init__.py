@@ -1,1 +1,1 @@
-# agents package
+from .judge import judge_node
