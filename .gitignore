@@ -4,3 +4,6 @@ venv
 .venv
 .env
 *.sh
+__pycache__/
+*.pyc
+*.pyo
