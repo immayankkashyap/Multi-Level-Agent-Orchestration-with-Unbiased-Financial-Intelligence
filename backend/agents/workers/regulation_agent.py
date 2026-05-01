@@ -1,7 +1,5 @@
 from datetime import datetime, timezone
 
-from qdrant_client.models import Filter, FieldCondition, Range
-
 from retrieval.qdrant_client import get_qdrant
 from graph.state import Evidence, AgentStep, GraphState
 
@@ -35,22 +33,19 @@ async def regulation_node(state: GraphState) -> dict:
         qdrant = get_qdrant()
         query_vector = await _mock_embed(state["query"])
 
-        # qdrant-client v1.x: use Filter/FieldCondition objects, not raw dicts
-        time_filter = Filter(
-            must=[
-                FieldCondition(
-                    key="effective_until",
-                    range=Range(gte=today_iso),
-                )
-            ]
-        )
-
         results = qdrant.query_points(
             collection_name="regulations",
             query=query_vector,
-            query_filter=time_filter,
             limit=5,
         ).points
+
+        # Qdrant range filters are numeric; this collection stores ISO date strings.
+        # Apply the date check here so the query still works without a schema change.
+        results = [
+            hit
+            for hit in results
+            if hit.payload.get("effective_until", "") >= today_iso
+        ]
 
         for hit in results:
             evidence.append(

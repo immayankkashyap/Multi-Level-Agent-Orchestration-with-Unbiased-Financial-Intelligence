@@ -22,7 +22,8 @@ async def rag_agent_node(state: GraphState) -> dict:
     )
 
     rewritten = await rewrite_query(state["query"])
-    raw_results = await _retriever.search(rewritten, top_k=20)
+    # Use smaller top_k to limit Qdrant reads on free-tier clusters
+    raw_results = await _retriever.search(rewritten, top_k=5)
     reranked = await rerank(rewritten, raw_results, top_k=5)
 
     evidence = [
