@@ -7,7 +7,7 @@ class HybridRetriever:
         # Do NOT call get_qdrant() here – defer until first search so the
         # module can be safely imported before Qdrant is running.
 
-    async def search(self, query: str, top_k: int = 20) -> list:
+    async def search(self, query: str, top_k: int = 5) -> list:
         """
         Hybrid dense + BM25 retrieval.
         Currently returns a mock result; real ingestion will be added later.

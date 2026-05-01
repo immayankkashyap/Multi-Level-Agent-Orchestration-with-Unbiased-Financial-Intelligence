@@ -1,4 +1,5 @@
 import asyncio
+from config.settings import settings
 from sentence_transformers import CrossEncoder
 
 _reranker: CrossEncoder | None = None
@@ -7,11 +8,10 @@ _reranker: CrossEncoder | None = None
 def get_reranker() -> CrossEncoder:
     global _reranker
     if _reranker is None:
-        # Using the powerful Gemma-based reranker (2B params)
-        # Since a dedicated GPU is available, we load this on CUDA for maximum performance.
         import torch
+
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        _reranker = CrossEncoder("BAAI/bge-reranker-v2-gemma", device=device)
+        _reranker = CrossEncoder(settings.RERANKER_MODEL_NAME, device=device)
     return _reranker
 
 

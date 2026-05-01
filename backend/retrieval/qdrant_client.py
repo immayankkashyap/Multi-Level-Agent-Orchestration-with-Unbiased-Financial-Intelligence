@@ -15,6 +15,9 @@ def get_qdrant() -> QdrantClient:
         _client = QdrantClient(
             url=settings.QDRANT_URL,
             api_key=settings.QDRANT_API_KEY,
+            # Use HTTP by default (gRPC may not be supported on free-managed clusters)
+            prefer_grpc=False,
+            # Suppress version-mismatch warning when server is unreachable or different version
             check_compatibility=False,
         )
     return _client
