@@ -53,6 +53,7 @@ async def judge_node(state: GraphState) -> dict:
 
     step["status"] = "done"
     step["summary"] = "Judge rendered a final decision"
+    step["prompt"] = prompt
     
     # State expects these keys
     return {

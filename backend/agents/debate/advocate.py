@@ -35,6 +35,8 @@ async def advocate_node(state: GraphState) -> dict:
 
     step["status"] = "done"
     step["summary"] = "Advocate argument generated"
+    step["prompt"] = prompt
+    step["argument"] = arg
     
     return {
         "advocate_arg": arg,

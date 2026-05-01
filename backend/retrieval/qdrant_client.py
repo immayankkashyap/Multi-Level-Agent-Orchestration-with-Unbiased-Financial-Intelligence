@@ -14,6 +14,7 @@ def get_qdrant() -> QdrantClient:
     if _client is None:
         _client = QdrantClient(
             url=settings.QDRANT_URL,
+            api_key=settings.QDRANT_API_KEY,
             check_compatibility=False,
         )
     return _client
