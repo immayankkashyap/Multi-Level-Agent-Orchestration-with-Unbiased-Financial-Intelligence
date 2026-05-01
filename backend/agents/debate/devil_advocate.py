@@ -35,6 +35,8 @@ async def devil_advocate_node(state: GraphState) -> dict:
 
     step["status"] = "done"
     step["summary"] = "Counter-argument generated"
+    step["prompt"] = prompt
+    step["argument"] = arg
     
     return {
         "devil_arg": arg,

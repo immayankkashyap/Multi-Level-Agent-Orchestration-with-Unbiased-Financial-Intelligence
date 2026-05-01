@@ -53,6 +53,7 @@ async def planner_node(state: GraphState) -> dict:
 
     step["status"] = "done"
     step["summary"] = f"Planned {len(sub_tasks)} sub-tasks"
+    step["prompt"] = prompt
 
     return {
         "sub_tasks": sub_tasks,

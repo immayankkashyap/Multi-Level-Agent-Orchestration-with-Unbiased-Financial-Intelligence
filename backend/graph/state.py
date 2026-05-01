@@ -7,7 +7,7 @@ MERGED (appended) instead of the last writer winning.
 """
 import operator
 from typing import Annotated, List, Optional
-from typing_extensions import TypedDict
+from typing_extensions import NotRequired, TypedDict
 
 
 class AgentStep(TypedDict):
@@ -15,6 +15,8 @@ class AgentStep(TypedDict):
     status: str             # 'running' | 'done' | 'error'
     summary: str            # one-liner for the UI thinking indicator
     detail: str             # full log for the thinking dropdown
+    prompt: NotRequired[str]
+    argument: NotRequired[str]
 
 
 class Evidence(TypedDict):
@@ -27,6 +29,8 @@ class GraphState(TypedDict):
     query: str
     user_id: str
     tier: str                                            # 'free' | 'pro' | 'enterprise'
+    trace_started: bool
+    trace_title: str
     sub_tasks: List[str]                                 # planner decomposition
     steps: Annotated[List[AgentStep], operator.add]      # merged across parallel nodes
     evidence: Annotated[List[Evidence], operator.add]    # merged across parallel nodes

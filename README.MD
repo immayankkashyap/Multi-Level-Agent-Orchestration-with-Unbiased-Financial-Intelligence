@@ -76,31 +76,13 @@ Or if a `requirements.txt` exists:
 pip install -r requirements.txt
 ```
 
-### 2.3 Start Infrastructure (Docker)
+### 2.3 Configure Cloud Services
 
-Open a new terminal and run both containers:
+Provision two managed services before starting the app:
 
-```bash
-# Qdrant vector database — runs on port 6333
-docker run -d --name qdrant-dev \
-  -p 6333:6333 \
-  qdrant/qdrant
-
-# PostgreSQL — runs on port 5432
-docker run -d --name pg-dev \
-  -e POSTGRES_PASSWORD=dev \
-  -e POSTGRES_DB=finance_db \
-  -p 5432:5432 \
-  postgres:15
-```
-
-Verify both are running:
-
-```bash
-docker ps
-```
-
-You should see `qdrant-dev` and `pg-dev` listed as `Up`.
+1. Create a Qdrant Cloud cluster and copy its HTTPS URL plus API key.
+2. Create a managed PostgreSQL instance on a provider such as Neon, Supabase, or AWS RDS.
+3. Make sure the PostgreSQL connection string uses SSL if your provider requires it.
 
 ### 2.4 Configure Environment Variables
 
@@ -115,10 +97,11 @@ Open `.env` and fill in all values:
 GEMINI_API_KEY=your_google_ai_studio_key_here
 
 # ── Vector Store ────────────────────────────────────────────────
-QDRANT_URL=http://localhost:6333
+QDRANT_URL=https://your-qdrant-cluster.cloud.qdrant.io
+QDRANT_API_KEY=your_qdrant_api_key_here
 
 # ── Database ────────────────────────────────────────────────────
-DATABASE_URL=postgresql+asyncpg://postgres:dev@localhost/finance_db
+DATABASE_URL=postgresql+asyncpg://USER:PASSWORD@YOUR_DB_HOST:5432/finance_db?sslmode=require
 
 # ── Firebase ────────────────────────────────────────────────────
 FIREBASE_PROJECT_ID=your_firebase_project_id
@@ -141,18 +124,13 @@ CORS_ORIGINS=http://localhost:3000
 
 ### 2.5 Initialize the Database
 
-```bash
-# Run the migration SQL to create all tables
-psql postgresql://postgres:dev@localhost/finance_db \
-  -f database/migrations/001_init.sql
-```
-
-If `psql` is not installed locally, run it via Docker:
+Run the migration SQL against your managed PostgreSQL instance:
 
 ```bash
-docker exec -i pg-dev psql -U postgres finance_db \
-  < database/migrations/001_init.sql
+psql "$DATABASE_URL" -f database/migrations/001_init.sql
 ```
+
+If your provider needs an explicit SSL mode, keep `?sslmode=require` in `DATABASE_URL`.
 
 ### 2.6 Ingest Sample Documents into Qdrant
 
@@ -249,7 +227,7 @@ curl http://localhost:8000/health
 
 **Qdrant health check:**
 ```bash
-curl http://localhost:6333/health
+curl "$QDRANT_URL/health"
 # Expected: {"title": "qdrant - vector search engine", "version": "..."}
 ```
 
@@ -274,10 +252,10 @@ python evaluation/fairness_metrics.py
 → Make sure your virtual environment is activated (`source venv/bin/activate`)
 
 **Qdrant connection refused**  
-→ Check the Docker container is running: `docker ps`. If not, `docker start qdrant-dev`
+→ Verify `QDRANT_URL` and `QDRANT_API_KEY` match your Qdrant Cloud cluster.
 
 **PostgreSQL auth error**  
-→ Confirm `DATABASE_URL` in `.env` matches your Docker container password (`dev`)
+→ Confirm `DATABASE_URL` in `.env` matches your managed database credentials and SSL requirements.
 
 **Gemini API 403 error**  
 → Check your `GEMINI_API_KEY` is valid at [aistudio.google.com](https://aistudio.google.com). Free tier has rate limits — add a 1s delay between calls during dev.
